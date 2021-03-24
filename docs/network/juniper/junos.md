@@ -61,6 +61,19 @@ user@host# run operational-mode-command
 * `request system power-off` - выключение системы
 * `request system zeroize` - полный сброс системы - конфигурация, пользовательские файлы, логи
 
+### Триальная лицензия для vMX
+
+Лицензия на 60 дней для vMX:
+
+```
+E435890758 aeaqic aiagij cpabsc idycyi giydco bqgiyd
+           sdapoz gvqlkk ovxgs4 dfojcx mylma4 uhfs7p
+           etdlfc ex2i5k 4mo4fa ew2xbz ujzbol 4fl44z
+           ya3md2 drdgjf preowc 5ubrju kyq
+```
+
+Для ввода лицензии надо в Operational режиме ввести команду `request system license add terminal` и вставить в терминал ключ выше
+
 ## Интерфейсы
 
 ###  Типы интерфейсов
@@ -862,7 +875,7 @@ protocols {
 
 ### Словарь
 
-* `EVI` - EPVN Instance - инстанс EVPN, распространённый на все PE устройства, участвующие в этом конкретном VPN
+* `EVI` - EPVN Instance - инстанс EVPN, распространённый на все PE устройства, участвующие в этом конкретном VPN (имеется ввиду не каждый VLAN, а конкретный routing-instance со своим RD, в котором может быть несколько VLANов)
 * `ESI` - Ethernet Segment Identifier - обязательный атрибут, который идентифицирует EVPN LAG (т.е. multihoming). Автоматически всем устройствам назначается `00:00:00:00:00:00:00:00:00:00`
 * `Ethernet segment` в Multihoming - сегмент сети между CE устройством, и двумя PE, к которым подключено это CE
 
@@ -1106,7 +1119,7 @@ routing-instances {
 
 * секция `esi` в `[edit interfaces ge-0/0/0 unit ###]` - обозначение Ethernet Segment Identifier. Обязательно для multihoming, для остальных сценариев опционально, но установка его всё же рекомендуется.
 
-  Удобный принцип формирования ESI - `00:RR:RR:RR:RR:RR:RR:00:VV:VV`, где:
+  Удобный принцип формирования ESI - `00:00:RR:RR:RR:RR:RR:RR:VV:VV`, где:
 
   * RR - router ID конкретного устройства (или же адрес iBGP лупбека)
   * VV - VLAN ID конкретного влана, передающегося в этом unitе
@@ -1121,13 +1134,212 @@ routing-instances {
 
 ### L3 функционал
 
+Чтобы обеспечить доступ из vlanа во внешнюю сеть, необходимо добавить L3 функционал в EVPN, а именно:
 
+* Сконфигурировать шлюзы с одинаковой IP-адресацией на всех PE, на которых присутствует данный vlan
+* Обеспечить синхронизацию дефолтных шлюзов, т.е. сделать так, чтобы каждый шлюз откликался на IP и MAC адрес любого другого шлюза
+* Если необходима маршрутизация между vlanами, то сконфигурировать отделный routing-instance vrf для обмена маршрутной информацией между vlanами
+
+#### Автоматическая синхронизация дефолтных шлюзов
+
+Автоматическая синхронизация дефолтных шлюзов предполагает конфигурирование на всех PE irb интерфейсов с одинаковой IP адресацией на каждом:
+
+```bash
+interfaces {
+    # Конфигурация каждого irb юнита должна быть одинаковой на всех PE
+    irb {
+        unit 777 {
+            family inet {
+                address 10.0.0.254/24;
+            }
+        }
+        unit 888 {
+            family inet {
+                address 10.0.1.254/24;
+            }
+        }
+        unit 999 {
+            family inet {
+                address 192.168.0.254/24;
+            }
+        }
+    }
+}
+```
+
+MAC адреса в данном случае назначаются автоматически, а каждый PE рассылает информацию о MAC+IP своего шлюза. Остальные PE получают эту информацию, и начинают принимать кадры на irb интерфейс сразу на несколько MAC адресов
+
+Например, если у нас есть 3 PE с MACами `50:03:00:0a:98:7a`, `00:00:00:77:77:77` и `10:92:26:25:50:05`, то шлюз каждого из этих PE будет получать на irb кадры на MAC адреса `50:03:00:0a:98:7a`, `00:00:00:77:77:77` и `10:92:26:25:50:05`
+
+#### Ручная синхронизация дефолтных шлюзов
+
+Ручная синхронизация дефолтных шлюзов предполагает ручное конфигурирование на всех PE irb интерфейсов и MAC/IP адресации на них:
+
+```bash
+interfaces {
+    # Конфигурация каждого irb юнита должна быть одинаковой на всех PE
+    irb {
+        unit 777 {
+            family inet {
+                address 10.0.0.254/24;
+            }
+            # Ручное назначение MAC
+            mac 00:00:00:77:77:77
+        }
+        unit 888 {
+            family inet {
+                address 10.0.1.254/24;
+            }
+            # Ручное назначение MAC
+            mac 00:00:00:88:88:88
+        }
+        unit 999 {
+            family inet {
+                address 192.168.0.254/24;
+            }
+            # Ручное назначение MAC
+            mac 00:00:00:99:99:99
+        }
+    }
+}
+```
+
+В таком случае будет меньшая нагрузка на control-plane, поскольку устройствам не придется самостоятельно синхронизировать свои шлюзы, этим занимается администратор, назначая одинаковые MACи на irb всех PE
+
+#### Маршрутизация между VLAN
+
+Чтобы обеспечить маршрутизацию между VLAN, необходимо связать их с помощью VRF
+
+##### Связывание VLAN в один VRF
+
+В таком случае все EVI связываются в одном VRF, в который скидывается маршрутная информация по каждому EVI. Каждый EVI может общаться с каждым, нет возможности разделить возможность общения одного EVI с другим.
+
+Примерная конфигурация с 3 EVI 777, 888, 999:
+
+```bash
+routing-instances {
+    RZN-EVPN {
+        bridge-domains {
+            VLAN-777 {
+                # Добавление irb к существующему bridge
+                routing-interface irb.777;
+            }
+            VLAN-888 {
+                # Добавление irb к существующему bridge
+                routing-interface irb.888;
+            }
+            VLAN-999 {
+                # Добавление irb к существующему bridge
+                routing-interface irb.999;
+            }
+        }
+    }
+    VRF-VPN-1 {
+        instance-type vrf;
+        interface irb.777;
+        interface irb.888;
+        interface irb.999;
+        # RD - уникальный идентификатор данного VRF по сети. Должен быть одинаковым на всех устройствах с этим VRF
+        route-distinguisher 31257:1;
+        # RT - route-target, указывающий информацию из каких VRF с каким RT нужно импортировать/экспортировать
+        vrf-target {
+            import target:31257:1;
+            export target:31257:1;
+        }
+        vrf-table-label;
+    }
+}
+```
+
+##### Разделение EVI на разные VRF
 
 ### Multihoming
 
-https://www.juniper.net/documentation/en_US/junos/topics/example/example-evpn-a-a-basic.html
+Подробная дока от Juniper [здесь](https://www.juniper.net/documentation/en_US/junos/topics/concept/evpn-bgp-multihoming-overview.html)
 
-https://www.juniper.net/documentation/en_US/junos/topics/concept/evpn-bgp-multihoming-overview.html
+```bash
+[edit]
+chassis {
+    aggregated-devices {
+        ethernet {
+            # Указание кол-ва агрегируемых интерфейсов на устройстве
+            device-count 1;
+        }
+    }
+}
+interfaces {
+    ge-0/0/2 {
+        gigether-options {
+            # Включение физического интерфейса в aggregated-ether
+            802.3ad ae2;
+        }
+    }
+    ae2 {
+        flexible-vlan-tagging;
+        encapsulation flexible-ethernet-services;
+        aggregated-ether-options {
+            lacp {
+                # Режим работы LACP
+                active;
+                # ID устройства в LACP, на обоих устройствах должен быть одинаковый
+                system-id 00:01:02:03:04:05;
+            }
+        }
+        unit 777 {
+            encapsulation vlan-bridge;
+            esi {
+                00:00:34:34:34:34:34:34:07:77;
+                all-active;
+            }
+            family bridge {
+                interface-mode trunk;
+                vlan-id-list 777;
+            }
+        }
+        unit 999 {
+            encapsulation vlan-bridge;
+            esi {
+                00:00:34:34:34:34:34:34:09:99;
+                all-active;
+            }
+            family bridge {
+                interface-mode trunk;
+                vlan-id-list 999;
+            }
+        }
+    }
+    irb {
+        unit 999 {
+            family inet {
+                address 192.168.0.254/24;
+            }
+            mac 00:00:00:99:99:99
+        }
+    }
+}
+routing-instances {
+    RZN-EVPN {
+        interface ae2.777;
+        interface ae2.999;
+         protocols {
+            evpn {
+                extended-vlan-list [ 777 999 ];
+            }
+        }
+        bridge-domains {
+            VLAN-999 {
+                vlan-id 999;
+                routing-interface irb.999;
+            }
+        }
+    }
+    VRF-VPN-1 {
+        interface irb.999;
+    }
+}
+```
+
+
 
 ### Траблшутинг
 
