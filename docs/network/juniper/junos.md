@@ -191,6 +191,129 @@ VID777 {
 * Выполнив `top show | compare` из `[edit protocols isis interface ge-0/0/0.0]` будут показаны изменения конфигурации из корня, т.е. всей конфигурации
 * Выполнив `top delete chassis auto-image-upgrade` из `[edit system login]` будет удалена нужная часть конфигурации `chassis auto-image-upgrade` не выходя из текущего контекста
 
+### Конфигурационные группы
+
+JunOS позволяет использовать так называемые конфигурационные группы, благодаря которым можно разделять конфиг на несколько частей или переиспользовать одинаковый конфиг во множесте разных уровней конфигурации.
+
+Пример конфигурации такой группы:
+
+```bash
+[edit]
+groups {
+    BASE-INT {
+        interfaces {
+            ge-0/0/9 {
+                description "<< ABK-MBR1 ge-0/0/9 >>";
+                unit 0 {
+                    family inet {
+                        address 80.65.16.13/30;
+                    }
+                }
+            }
+            ge-0/0/6 {
+                description "<< KRK-MBR0 ge-0/0/6 >>";
+                unit 0 {
+                    family inet {
+                        address 10.255.0.5/31;
+                    }
+                }
+            }
+        }
+    }
+}
+apply-groups BASE-INT;
+```
+
+В примере выше эта группа была использована в корне конфигурации, но также их можно использовать в любом другом уровне иерархии. Например, у нас есть повторяющийся много раз конфиг интерфейса IS-IS, создаётся группа со следующим содержимым:
+
+```bash
+[edit]
+groups {
+    ISIS-INT {
+        protocols {
+            isis {
+                interface <*> {
+                    hello-padding adaptive;
+                    family inet {
+                        bfd-liveness-detection {
+                            version automatic;
+                            minimum-interval 300;
+                            multiplier 5;
+                            no-adaptation;
+                        }               
+                    }
+                    level 2 hello-authentication-key-chain KEY-ISIS;
+                }
+            }
+        }
+    }
+}
+```
+
+А в процессе IS-IS следующим образом конфигурируются интерфейсы:
+
+```bash
+[edit]
+protocols {
+    isis {
+        level 1 disable;             
+        level 2 wide-metrics-only;
+        interface ge-0/0/1.0 {
+            apply-groups ISIS-INT;
+            point-to-point;
+            level 2 metric 10000;
+        }
+        interface ge-0/0/3.0 {
+            apply-groups ISIS-INT;
+            level 2 metric 100;
+        }
+    }
+}
+```
+
+В итоге конфигурация процесса IS-IS выглядит так:
+
+```bash
+[edit]
+protocols {
+    isis {
+        level 1 disable;
+        level 2 wide-metrics-only;
+        interface ge-0/0/1.0 {
+            hello-padding adaptive;
+            point-to-point;
+            family inet {
+                bfd-liveness-detection {
+                    version automatic;
+                    minimum-interval 300;
+                    multiplier 5;
+                    no-adaptation;
+                }
+            }
+            level 2 {
+                metric 10000;
+                hello-authentication-key-chain KEY-ISIS;
+            }                           
+        }
+        interface ge-0/0/3.0 {
+            hello-padding adaptive;
+            family inet {
+                bfd-liveness-detection {
+                    version automatic;
+                    minimum-interval 300;
+                    multiplier 5;
+                    no-adaptation;
+                }
+            }
+            level 2 {
+                metric 100;
+                hello-authentication-key-chain KEY-ISIS;
+            }
+        }
+    }
+}
+```
+
 ### Просмотр конфигурации
 
 Подробная дока от Juniper [здесь](https://www.juniper.net/documentation/en_US/junos/topics/topic-map/junos-configuartion-viewing.html)
@@ -230,6 +353,8 @@ VID777 {
   set file messages authorization info
   set file interactive-commands interactive-commands any
   ```
+
+* `show | display inheritance` - просмотр конфигурации, при котором содержимое конфигурационных групп, применённых в каких-либо контекстах, "сливается" с глобальным конфигом
 
 В зависимости от привилегий вашего пользователя, некоторые части конфигурации могут впринципе не выводиться (заместо них в конфиге будет высвечено сообщение `ACCESS-DENIED`), а также пароли и ключи аутентификации (выведется сообщение `SECRET-DATA`).
 
