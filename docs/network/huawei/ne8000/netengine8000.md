@@ -4,20 +4,62 @@ title: NE8000 VRP
 
 ## Конфигурация
 
-### Базовая
-
-```bash
-clock timezone $NAME add HH:MM:SS # задать временную зону
-set save-configuration interval MM # сохранять current-config раз в MM минут
-```
-
 ### Управление конфигурацией
+
+В Huawei VRP на NE8000 присутствует система candidate конфигураций...
 
 * `display configuration candidate changes` (`di co ca ch`) - показать различия между текущей и candidate(незакоммиченной) конфигурацией
 
 * `refresh configuration candidate` (`re co ca`) - если конфигурация была изменена во время конфигурирования, обновить измененный конфиг
 
 * `clear configuration candidate` (`c c c`) - очистить изменённую, но незакомиченную конфигурацию
+
+### Базовая
+
+Типовая конфигурация, не является идеальной:
+
+```bash
+# Таймзона, add - "+", minus - "-"
+clock timezone KRAT add 07:00:00
+# Имя устройства
+sysname LAB-DS-NE8000-M1A
+# Сохранять current-config раз в 30 минут
+set save-configuration interval 30
+
+# Отключить по умолчанию включенный FTP-сервер
+undo FTP server-source all-interface
+undo FTP ipv6 server-source all-interface
+# Отключить стандартную политику парольной безопасности
+undo user-security-policy enable
+
+# Отключить возможность подключения по telnet
+undo telnet server enable
+undo telnet ipv6 server enable
+undo telnet server-source all-interface
+undo telnet ipv6 server-source all-interface
+
+# Алиасы команд
+command alias
+ alias dicocach command "display configuration candidate changes"
+ alias sh command di
+ alias shipcef command "display fib slot 1"
+ alias show command display
+ alias shpfx command "dis c c xpl-pfx"
+
+# DNS-клиент
+dns resolve
+dns server 80.65.16.1
+dns server 80.65.20.1
+dns domain orionnet.ru
+
+# Отключение plug-and-play фич
+undo dcn
+undo pnp enable
+undo pnp default route
+undo ip vpn-instance __LOCAL_OAM_VPN__
+interface ether0/0/0
+ undo ip binding vpn-instance __LOCAL_OAM_VPN__
+```
 
 ### Интерфейсы
 
@@ -258,5 +300,20 @@ interface $INTERFACE
  # Значения указываются в kbps
 ```
 
+#### NTP
+
+```bash
+# Отключить NTP-сервер, сконфигурировать железку как клиент
+ntp-service server disable
+ntp-service ipv6 server disable
+ntp-service server source-interface all disable
+ntp-service ipv6 server source-interface all disable
+ntp-service unicast-server 109.226.249.72 source-interface LoopBack0 preference
+```
+
+
+
 ## Известные проблемы
+
+## Типовой конфиг
 
