@@ -16,12 +16,11 @@
 * Переходим из Диспетчера Серверов в оснастку **"Internet Information Services (IIS) Manager"**
 
 * Добавляем в список доступных сервером сервер Core
+  ![image-20201006131416362.png](./image-20201006131416362.png)
 
-  <img src="./image-20201006131416362.png" alt="image-20201006131416362" style="zoom: 67%;" />
+* ![image-20201006131923763.png](./image-20201006131923763.png)
 
-* <img src="./image-20201006131923763.png" alt="image-20201006131923763" style="zoom: 67%;" />
-
-* <img src="./image-20201006131944883.png" alt="image-20201006131944883" style="zoom:67%;" />
+* ![image-20201006131944883.png](./image-20201006131944883.png)
 
 
 
@@ -31,7 +30,7 @@
 
 * Доступ через http по имени kazan.wsr
 
-  <img src="./image-20201006132219446.png" alt="image-20201006132219446" style="zoom:67%;" />
+  ![image-20201006132219446.png](./image-20201006132219446.png)
 
 
 
