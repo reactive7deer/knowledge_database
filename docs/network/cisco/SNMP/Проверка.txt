@@ -1,0 +1,69 @@
+>> FW1  <<
+
+FW1# show snmp-server host
+host ip = 172.16.20.20, interface = L2VPN  version 3 snmpuser
+
+
+FW1# show snmp-server group
+
+groupname : WSR                              security model:v3 priv
+readview  : def_read_view                    writeview : <no writeview specified>
+notifyview: def_notify_view
+row status: active
+
+
+FW1# show snmp-server user
+
+User name: snmpuser
+Engine ID: 80000009fee93c425330e25311f0745d957fda1ed486d705ae
+storage-type: nonvolatile        active
+Authentication Protocol: SHA
+Privacy Protocol: AES128
+Group-name: WSR
+
+
+
+
+
+
+
+>>  HQ1  <<
+
+HQ1#show snmp
+Chassis: FCZ123770RH
+Contact: admin@wsr.ru
+Location: MSK, Russia
+83 SNMP packets input
+    0 Bad SNMP version errors
+    0 Unknown community name
+    0 Illegal operation for community name supplied
+    0 Encoding errors
+    37 Number of requested variables
+    0 Number of altered variables
+    1 Get-request PDUs
+    38 Get-next PDUs
+    0 Set-request PDUs
+    0 Input queue packet drops (Maximum queue size 1000)
+83 SNMP packets output
+    0 Too big errors (Maximum packet size 1500)
+    0 No such name errors
+    0 Bad values errors
+    0 General errors
+    0 Response PDUs
+    0 Trap PDUs
+SNMP Dispatcher:
+   queue 0/75 (current/max), 0 dropped
+SNMP Engine:
+   queue 0/1000 (current/max), 0 dropped
+    0 Unknown Security Models
+    0 SNMP Invalid Messages
+    0 SNMP Unknown PDU handlers
+    0 Unsupported Security Level
+    1 Unknown User Names
+    42 Unknown EngineIDs
+    0 Not In Time Windows
+    1 Wrong MD5 or SHA Digests
+    0 Decryption Errors
+
+SNMP logging: enabled
+    Logging to 172.16.20.20.162, 0/10, 0 sent, 0 dropped.

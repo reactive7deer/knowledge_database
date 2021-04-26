@@ -1,0 +1,33 @@
+nat.conf
+
+table ip nftables_svc {
+
+	# interfaces to masquerade traffic from
+	# Интерфейсы, трафик с которых должен проходить маскарад
+	set masq_interfaces {
+			type ifname
+			elements = ("virbr0")
+	}
+
+	# networks to masquerade traffic from
+	# 'interval' flag is required to support subnets
+	# Сети, трафик из которых должен проходить маскарад
+	# Флаг 'interval' необходим для поддержки подсетей
+	set masq_ips {
+		type ipv4_addr
+		flags interval
+		elements = { 192.168.122.0/24 }
+	}
+
+	# base-chain to manipulate conntrack in postrouting
+	# will see packets for new or related traffic only
+	# базовая цепь для управления состоянием(??) в построутинге
+	# будут видны только пакеты для нового или связанного трафика
+	chain POSTROUTING {
+		type nat hook postrouting priority srcnat + 20
+		policy accept
+
+		iifname @masq_interfaces oifname != @masq_interfaces masquerade
+		ip saddr @masq_ips masquerade
+	}
+}

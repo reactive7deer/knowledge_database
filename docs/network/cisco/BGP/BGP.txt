@@ -1,0 +1,39 @@
+>>  HQ1  <<
+
+router bgp 65000
+ network 1.1.1.1 mask 255.255.255.255
+ network 30.78.21.0 mask 255.255.255.0
+ network 30.78.87.0 mask 255.255.255.248
+ neighbor 30.78.87.2 remote-as 65000
+
+
+
+>>  FW1  <<
+
+router bgp 65000
+ address-family ipv4
+  neighbor 100.45.10.1 remote-as 65001
+  neighbor 100.45.10.1 activate
+  neighbor 30.78.87.1 remote-as 65000
+  neighbor 30.78.87.1 activate
+  neighbor 22.84.4.5 remote-as 65002
+  neighbor 22.84.4.5 activate
+  network 100.45.10.0 mask 255.255.255.252
+  network 30.78.87.0 mask 255.255.255.248
+  network 22.84.4.4 mask 255.255.255.252
+
+
+
+>>  BR1  <<
+
+ip prefix-list PRL-ISP-in seq 5 deny 14.88.22.8/32
+ip prefix-list PRL-ISP-in seq 10 permit 0.0.0.0/0 le 32
+
+router bgp 65010
+ network 3.3.3.3 mask 255.255.255.255
+ network 22.84.4.0 mask 255.255.255.252
+ network 100.45.5.0 mask 255.255.255.252
+ neighbor 22.84.4.1 remote-as 65002
+ neighbor 22.84.4.1 prefix-list PRL-ISP-in in
+ neighbor 100.45.5.1 remote-as 65001
+ neighbor 100.45.5.1 prefix-list PRL-ISP-in in

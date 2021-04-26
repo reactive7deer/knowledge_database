@@ -1,10 +1,10 @@
 # Main config
 
 # Basic info
-site_name: reactive deer's brain cave
-site_description: Everything I know so far
-site_author: Dmitriy Salatkin
-repo_name: reactive-deer/knowledge_database
+site_name: brain cave
+site_description: brain cave
+site_author: some guy
+repo_name: knowledge_database
 repo_url: https://github.com/reactive-deer/knowledge_database
 
 # Extensions to MD
@@ -41,14 +41,6 @@ markdown_extensions:
   - pymdownx.emoji
 
 # Social network links
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/reactive-deer
-    - icon: fontawesome/brands/vk
-      link: https://vk.com/reactive_deer
-    - icon: fontawesome/brands/telegram
-      link: https://t.me/reactive_deer
 
 # MKDocs theme params
 theme:
@@ -64,8 +56,6 @@ theme:
       - tabs
       - instant
       - navigation.expand
-    favicon: img/icon.png
-    logo: img/icon.png
 #extra_css:
 #  - stylesheets/extra.css
 
@@ -82,4 +72,4 @@ plugins:
 
 
 # Copyright
-copyright: "Dmitriy Salatkin &copy; 2020-2021"
+copyright: "someguy &copy; 2020-2021"

@@ -1,0 +1,590 @@
+23.11
+
+https://deltaconfig.ru/l2tp-cisco-router/
+https://www.cisco.com/c/en/us/support/docs/dial-access/virtual-private-dialup-network-vpdn/200450-Setting-up-L2TP-Tunnel-between-a-Windows.html
+
+------------------->  NAT  <-------------------
+
+>>  BR1  <<
+
+Шаги:
+acl
+ip nat <source> <outside> <int>
+int
+ inside
+int
+ outside
+
+
+
+>>  HQ1  <<
+
+Шаги:
+acl
+ip nat <source> <outside> <int>
+int
+ inside
+int
+ outside
+
+router ospf 1
+	default-information originate always
+
+
+
+------------------->  L2TP  <-------------------
+
+aaa authentication ppp default local
+aaa authorization network default local
+
+interface FastEthernet0/0
+ ip address 192.168.2.1 255.255.255.0
+ no sh
+
+vpdn enable
+vpdn-group 1
+ ! Default L2TP VPDN group
+ accept-dialin
+  protocol l2tp
+  virtual-template 1
+ no l2tp tunnel authentication
+
+ip local pool l2tp 10.8.8.10
+
+interface Virtual-Template1
+ ip address 10.8.8.1 255.255.255.0
+ peer default ip address pool l2tp
+ ppp authentication pap callout
+!
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------
+
+
+
+HQ1#show run
+Building configuration...
+
+
+Current configuration : 4630 bytes
+!
+! Last configuration change at 16:49:05 UTC Mon Nov 23 2020 by wsruser
+! NVRAM config last updated at 14:29:57 UTC Sun Nov 22 2020 by wsruser
+! NVRAM config last updated at 14:29:57 UTC Sun Nov 22 2020 by wsruser
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname HQ1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$z8c4$UnJ9LvRB7uYpo7eDRQKi/.
+enable password 7 05080F1C2243
+!
+aaa new-model
+!
+!
+aaa group server radius AAA_RAD
+ server-private 172.16.20.20 auth-port 1812 acct-port 1813 key 7 1511021F0725
+!
+aaa authentication login default local
+aaa authentication login method_man local group AAA_RAD
+aaa authorization console
+aaa authorization exec default local
+aaa authorization exec method_man local group AAA_RAD
+!
+!
+!
+!
+!
+aaa session-id common
+!
+!
+dot11 syslog
+ip source-route
+!
+!
+ip cef
+!
+ip dhcp excluded-address 30.78.21.1
+!
+ip dhcp pool OFFICE
+ network 30.78.21.0 255.255.255.0
+ default-router 30.78.21.1
+ option 42 ip 172.16.20.20
+!
+ip dhcp pool PC1
+ host 30.78.21.10 255.255.255.0
+ client-identifier 0100.5056.90a1.bb
+ client-name PC1
+ option 42 ip 172.16.20.20
+ default-router 30.78.21.1
+!
+!
+ip domain name worldskills.ru
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+voice-card 0
+!
+crypto pki token default removal timeout 0
+!
+!
+!
+!
+license udi pid CISCO2811 sn FCZ123770RH
+archive
+ path tftp://172.16.20.20/$h-$t.cfg
+ write-memory
+username wsruser privilege 15 secret 5 $1$p0wV$F//SWmVO9Lui43Op/MaKt0
+!
+redundancy
+!
+!
+ip ssh logging events
+ip ssh version 2
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 1.1.1.1 255.255.255.255
+ ipv6 address 2001:A:B:1::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+interface Tunnel1
+ ip address 172.16.1.1 255.255.255.0
+ no ip redirects
+ ip nhrp map multicast dynamic
+ ip nhrp network-id 4294967295
+ ipv6 address 2001:1::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+ ipv6 nhrp map multicast dynamic
+ ipv6 nhrp network-id 4294967295
+ tunnel source Loopback0
+ tunnel mode gre multipoint
+!
+interface FastEthernet0/0
+ ip address 192.168.254.1 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/0.1000
+ description >> MGT <<
+ encapsulation dot1Q 1000
+ ip address 10.0.100.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface FastEthernet0/0.1200
+ description >> DATA <<
+ encapsulation dot1Q 1200
+ ip address 172.16.20.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface FastEthernet0/0.1300
+ description >> OFFICE <<
+ encapsulation dot1Q 1300
+ ip address 30.78.21.1 255.255.255.0
+ ipv6 address 2001:A:B:DEAD::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+interface FastEthernet0/1
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1.10
+ description >> L2 VPN <<
+ encapsulation dot1Q 10
+ ip address 172.16.3.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+ ipv6 address 2001:4::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+interface FastEthernet0/1.20
+ description >> FW1 <<
+ encapsulation dot1Q 20
+ ip address 30.78.87.1 255.255.255.248
+ ip nat outside
+ ip virtual-reassembly in
+ ipv6 address 2001:3::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+router ospf 1
+ passive-interface default
+ no passive-interface FastEthernet0/1.10
+ no passive-interface Tunnel1
+ network 10.0.100.0 0.0.0.255 area 51
+ network 172.16.1.0 0.0.0.255 area 0
+ network 172.16.3.0 0.0.0.255 area 0
+ network 172.16.20.0 0.0.0.255 area 51
+ default-information originate always
+!
+router bgp 65000
+ bgp log-neighbor-changes
+ network 1.1.1.1 mask 255.255.255.255
+ network 30.78.21.0 mask 255.255.255.0
+ network 30.78.87.0 mask 255.255.255.248
+ neighbor 30.78.87.2 remote-as 65000
+!
+ip forward-protocol nd
+no ip http server
+no ip http secure-server
+!
+!
+ip nat inside source list 1 interface Loopback0 overload
+!
+logging origin-id hostname
+logging source-interface FastEthernet0/0.1200
+logging 172.16.20.20
+access-list 1 permit 10.0.100.0 0.0.0.255
+access-list 1 permit 172.16.20.0 0.0.0.255
+access-list 1 permit 10.8.8.0 0.0.0.255
+ipv6 router eigrp 6000
+!
+!
+!
+!
+!
+snmp-server group WSR v3 auth
+snmp-server group WSR v3 priv read RO
+snmp-server location MSK, Russia
+snmp-server contact admin@wsr.ru
+snmp-server host 172.16.20.20 version 3 auth snmpuser
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+mgcp profile default
+!
+!
+!
+!
+!
+gatekeeper
+ shutdown
+!
+!
+!
+line con 0
+line aux 0
+line vty 0 4
+ password 7 060506324F41
+ authorization exec method_man
+ login authentication method_man
+ transport input all
+line vty 5 15
+ authorization exec method_man
+ login authentication method_man
+ transport input all
+!
+scheduler allocate 20000 1000
+ntp server 172.16.20.20
+end
+
+
+
+
+
+
+
+-------------------------------------------------------------------
+
+
+
+BR1#show run
+Building configuration...
+
+
+Current configuration : 4619 bytes
+!
+! Last configuration change at 16:50:59 UTC Mon Nov 23 2020 by wsruser
+! NVRAM config last updated at 16:05:25 UTC Mon Nov 23 2020 by wsruser
+! NVRAM config last updated at 16:05:25 UTC Mon Nov 23 2020 by wsruser
+version 15.1
+parser view sh_view
+ secret 5 $1$wt9V$Et.V2SRTW66OqcDxngtS20
+ commands exec include all traceroute
+ commands exec include all ping
+ commands exec include all show ip
+ commands exec include show cdp neighbors
+ commands exec include show cdp
+ commands exec include show
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname BR1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$0VJJ$9PYeGfmXm2SzQ4T6roJl//
+enable password 7 045802150C2E
+!
+aaa new-model
+!
+!
+aaa authentication login default local
+aaa authentication ppp default local
+aaa authorization console
+aaa authorization exec default local
+aaa authorization network default local
+!
+!
+!
+!
+!
+aaa session-id common
+!
+!
+dot11 syslog
+ip source-route
+!
+!
+ip cef
+!
+!
+!
+ip domain name worldskills.ru
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+vpdn enable
+!
+vpdn-group 1
+ ! Default L2TP VPDN group
+ accept-dialin
+  protocol l2tp
+  virtual-template 1
+ no l2tp tunnel authentication
+!
+!
+!
+!
+!
+!
+!
+!
+voice-card 0
+!
+crypto pki token default removal timeout 0
+!
+!
+!
+!
+license udi pid CISCO2811 sn FCZ103373R6
+username wsruser privilege 15 secret 5 $1$3H0n$D8edxZqEkuh5TXuMSEMwx.
+username user1 privilege 5 secret 5 $1$y/Nd$5ycsFRw3/nJbUMzg4w2yw1
+username user2 view sh_view secret 5 $1$Jh5z$HWHR3Ah.MFhcXIkeqLN1Q/
+username pc2user password 7 140711591C053938
+!
+redundancy
+!
+!
+ip ssh version 2
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 3.3.3.3 255.255.255.255
+ ipv6 address 2001:A:B:3::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+interface Tunnel1
+ ip address 172.16.1.2 255.255.255.0
+ no ip redirects
+ ip nhrp map 172.16.1.1 1.1.1.1
+ ip nhrp map multicast 1.1.1.1
+ ip nhrp network-id 4294967295
+ ip nhrp nhs 172.16.1.1
+ ipv6 address 2001:1::2/64
+ ipv6 enable
+ ipv6 eigrp 6000
+ ipv6 nhrp map 2001:1::1/64 1.1.1.1
+ ipv6 nhrp map multicast 1.1.1.1
+ ipv6 nhrp network-id 4294967295
+ ipv6 nhrp nhs 2001:1::1
+ tunnel source Loopback0
+ tunnel mode gre multipoint
+!
+interface Multilink1
+ ip address negotiated
+ ip nat outside
+ ip virtual-reassembly in
+ peer default ip address 100.45.5.1
+ ppp multilink
+ ppp multilink group 1
+!
+interface FastEthernet0/0
+ ip address 192.168.2.1 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1
+ ip address 192.168.254.3 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1.10
+ description >> L2 VPN <<
+ encapsulation dot1Q 10
+ ip address 172.16.3.3 255.255.255.0
+ ipv6 address 2001:4::3/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+interface Serial0/1/0
+ no ip address
+ encapsulation ppp
+ no fair-queue
+ ppp multilink
+ ppp multilink group 1
+!
+interface Serial0/1/1
+ no ip address
+ encapsulation ppp
+ ppp multilink
+ ppp multilink group 1
+!
+interface Serial0/2/0
+ ip address 22.84.4.2 255.255.255.252
+ ip nat outside
+ ip virtual-reassembly in
+!
+interface Serial0/2/1
+ no ip address
+ shutdown
+ clock rate 125000
+!
+interface Virtual-Template1
+ ip address 10.8.8.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+ peer default ip address pool l2tp
+ ppp authentication pap callout
+!
+router ospf 1
+ passive-interface default
+ no passive-interface FastEthernet0/1.10
+ no passive-interface Tunnel1
+ network 10.8.8.0 0.0.0.255 area 1
+ network 172.16.1.0 0.0.0.255 area 0
+ network 172.16.3.0 0.0.0.255 area 0
+ network 192.168.2.0 0.0.0.255 area 1
+!
+router bgp 65010
+ bgp log-neighbor-changes
+ network 3.3.3.3 mask 255.255.255.255
+ network 22.84.4.0 mask 255.255.255.252
+ network 100.45.5.0 mask 255.255.255.252
+ neighbor 22.84.4.1 remote-as 65002
+ neighbor 22.84.4.1 prefix-list PRL-ISP-in in
+ neighbor 100.45.5.1 remote-as 65001
+ neighbor 100.45.5.1 prefix-list PRL-ISP-in in
+!
+ip local pool l2tp 10.8.8.10
+ip forward-protocol nd
+no ip http server
+no ip http secure-server
+!
+!
+ip nat inside source list 1 interface Loopback0 overload
+!
+!
+ip prefix-list PRL-ISP-in seq 5 deny 14.88.22.8/32
+ip prefix-list PRL-ISP-in seq 10 permit 0.0.0.0/0 le 32
+access-list 1 permit 10.8.8.0 0.0.0.255
+ipv6 router eigrp 6000
+!
+!
+!
+!
+!
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+mgcp profile default
+!
+!
+!
+!
+!
+gatekeeper
+ shutdown
+!
+!
+privilege exec level 5 reload
+privilege exec level 5 no debug
+privilege exec level 5 debug
+privilege exec level 5 no
+!
+line con 0
+line aux 0
+line vty 0 4
+ password 7 05080F1C2243
+ transport input all
+line vty 5 15
+ transport input all
+!
+scheduler allocate 20000 1000
+ntp server 172.16.20.20
+end

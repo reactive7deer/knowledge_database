@@ -1,0 +1,62 @@
+### L-FW
+
+table ip wsr39 {
+	chain in-chain {
+		type filter hook input priority filter
+		policy drop
+
+		tcp dport { ssh, DNS } accept
+		udp dport 22 accept
+		
+		iifname != "ens160" accept
+		oifname != "ens160" accept
+		#meta iif tun0 accept # ???
+		l4proto { icmp, esp, gre} accept
+	}
+
+	chain out_chain {
+		type nat hook postrouting priority srcnat
+		policy accept
+
+		oifname "ens192" masquerade
+	}
+
+	chain prerouting {
+    		type nat hook prerouting priority dsnat
+
+    		udp dport { 53 } dnat 172.16.20.10
+    		tcp dport { 53 } dnat 172.16.20.10
+  }
+}
+
+
+### R-FW
+
+table ip wsr39 {
+	
+	chain in-chain {
+		type filter hook input priority filter + 20
+		policy drop
+
+		tcp dport { 22, 53 } accept
+		udp dport 53 accept
+		tcp dport { http, https } accept
+		
+		iifname != "ens160" accept
+		oifname != "ens160" accept
+		#meta iif tun0 accept # ???
+		meta l4proto { icmp, esp, gre} accept
+	}
+
+	chain out_chain {
+		type nat hook postrouting priority srcnat + 20
+		policy accept
+
+		oifname "ens192" masquerade
+	}
+
+}
+
+
+# Необходимо правило на пересылку DNS запросов к серверу
+# Протоколы: 53 (udp/tcp), 80, 443

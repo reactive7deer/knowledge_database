@@ -1,0 +1,52 @@
+HQ1#show ipv6 eigrp neighbors
+EIGRP-IPv6 Neighbors for AS(6000)
+H   Address                 Interface       Hold Uptime   SRTT   RTO  Q  Seq
+                                            (sec)         (ms)       Cnt Num
+1   Link-local address:     Tu1               14 05:36:32 1988  5000  0  16
+    FE80::219:6FF:FE18:D658
+0   Link-local address:     Fa0/1.10          11 12:28:41  636  3816  0  6
+    FE80::219:6FF:FE18:D659
+
+
+HQ1#show ipv6 route eigrp
+IPv6 Routing Table - default - 10 entries
+Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
+       B - BGP, HA - Home Agent, MR - Mobile Router, R - RIP
+       I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea, IS - ISIS summary
+       D - EIGRP, EX - EIGRP external, NM - NEMO, ND - Neighbor Discovery
+       l - LISP
+       O - OSPF Intra, OI - OSPF Inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
+       ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2
+D   2001:A:B:3::/64 [90/156160]
+     via FE80::219:6FF:FE18:D659, FastEthernet0/1.10
+
+
+
+
+
+
+
+BR1#show ipv6 eigrp nei
+EIGRP-IPv6 Neighbors for AS(6000)
+H   Address                 Interface       Hold Uptime   SRTT   RTO  Q  Seq
+                                            (sec)         (ms)       Cnt Num
+1   Link-local address:     Tu1               13 05:37:59   72  5000  0  15
+    FE80::223:4FF:FE14:A198
+0   Link-local address:     Fa0/1.10          13 12:30:09  181  1086  0  4
+    FE80::223:4FF:FE14:A199
+
+
+BR1#show ipv6 route eigrp
+IPv6 Routing Table - default - 9 entries
+Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
+       B - BGP, HA - Home Agent, MR - Mobile Router, R - RIP
+       I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea, IS - ISIS summary
+       D - EIGRP, EX - EIGRP external, NM - NEMO, ND - Neighbor Discovery
+       l - LISP
+       O - OSPF Intra, OI - OSPF Inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
+       ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2
+D   2001:3::/64 [90/30720]
+     via FE80::223:4FF:FE14:A199, FastEthernet0/1.10
+D   2001:A:B:1::/64 [90/156160]
+     via FE80::223:4FF:FE14:A199, FastEthernet0/1.10
+BR1#

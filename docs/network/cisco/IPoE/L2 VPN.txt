@@ -1,0 +1,47 @@
+>>  HQ1  <<
+
+interface FastEthernet0/1.10
+ description >> L2 VPN <<
+ encapsulation dot1Q 10
+ ip address 172.16.3.1 255.255.255.0
+ ipv6 address 2001:4::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+
+
+
+
+>>  FW1  <<
+
+interface Ethernet0/2
+ description >> HQ <<
+ switchport trunk allowed vlan 10,20,1500
+ switchport trunk native vlan 1500
+ switchport mode trunk
+!
+interface Ethernet0/3
+ description >> L2 VPN <<
+ switchport trunk allowed vlan 1,10
+ switchport trunk native vlan 1
+ switchport mode trunk
+!
+interface Vlan10
+ description >> L2 VPN <<
+ nameif L2VPN
+ security-level 100
+ ip address 172.16.3.2 255.255.255.0
+ ipv6 address 2001:4::2/64
+ ipv6 enable
+
+
+
+
+>>  BR1  <<
+
+interface FastEthernet0/1.10
+ description >> L2 VPN <<
+ encapsulation dot1Q 10
+ ip address 172.16.3.3 255.255.255.0
+ ipv6 address 2001:4::3/64
+ ipv6 enable
+ ipv6 eigrp 6000

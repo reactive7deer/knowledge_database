@@ -1,0 +1,26 @@
+vlan 1000
+  name MGT
+  exit
+vlan 1200
+  name DATA
+  exit
+vlan 1300
+  name OFFICE
+  exit
+vlan 1500
+  name NATIVE
+  exit
+vlan 1600
+  name SHUTDOWN
+  exit
+vtp mode off
+
+interface fa010
+  switchport mode access
+  switchport nonegotiate
+  switchport access vlan 1200
+  exit
+
+interface range fa05-6
+  channel-group 1 mode passive
+  exit

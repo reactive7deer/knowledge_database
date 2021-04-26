@@ -1,0 +1,23 @@
+table ip wsr39 {
+	
+	chain in-chain {
+		type filter hook input priority filter + 20
+		policy drop
+
+		tcp dport 22 accept
+		meta iif tun0 accept # ???
+		meta l4proto { icmp, esp, gre} accept
+	}
+
+	chain out_chain {
+		type nat hook postrouting priority srcnat + 20
+		policy accept
+
+		oifname "ens192" masquerade
+	}
+}
+
+
+
+# Необходимо правило на пересылку DNS запросов к серверу
+# Протоколы: 53 (udp/tcp), 80, 443

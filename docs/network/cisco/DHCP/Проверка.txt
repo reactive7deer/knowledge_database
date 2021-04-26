@@ -1,0 +1,31 @@
+HQ1#show ip dhcp pool
+
+Pool OFFICE :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0
+ Total addresses                : 254
+ Leased addresses               : 0
+ Pending event                  : none
+ 1 subnet is currently in the pool :
+ Current index        IP address range                    Leased addresses
+ 30.78.21.1           30.78.21.1       - 30.78.21.254      0
+
+Pool PC1 :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0
+ Total addresses                : 1
+ Leased addresses               : 1
+ Pending event                  : none
+ 0 subnet is currently in the pool :
+ Current index        IP address range                    Leased addresses
+ 30.78.21.10          30.78.21.10      - 30.78.21.10       1
+
+
+
+HQ1#show ip dhcp binding
+
+Bindings from all pools not associated with VRF:
+IP address          Client-ID/              Lease expiration        Type
+                    Hardware address/
+                    User name
+30.78.21.10         0100.5056.90a1.bb       Infinite                Manual

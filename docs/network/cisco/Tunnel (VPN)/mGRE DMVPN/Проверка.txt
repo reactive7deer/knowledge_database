@@ -1,0 +1,56 @@
+HQ1#show ip nhrp brief
+   Target             Via            NBMA           Mode   Intfc   Claimed
+172.16.1.2/32        172.16.1.2      3.3.3.3         dynamic  Tu1     <   >
+
+
+HQ1#show ipv6 nhrp brief
+   Target                        Via
+2001:1::2/128                2001:1::2
+    NBMA: 3.3.3.3               Mode: dynamic   Intfc: Tu1      Claimed: <   >
+FE80::219:6FF:FE18:D658/128                  2001:1::2
+    NBMA: 3.3.3.3               Mode: dynamic   Intfc: Tu1      Claimed: <   >
+
+
+HQ1#show ip int brief
+Interface                  IP-Address      OK? Method Status                Protocol
+FastEthernet0/0            192.168.254.1   YES NVRAM  up                    up  
+FastEthernet0/0.1000       10.0.100.1      YES NVRAM  up                    up  
+FastEthernet0/0.1200       172.16.20.1     YES NVRAM  up                    up  
+FastEthernet0/0.1300       30.78.21.1      YES NVRAM  up                    up  
+FastEthernet0/1            unassigned      YES NVRAM  up                    up  
+FastEthernet0/1.10         172.16.3.1      YES NVRAM  up                    up  
+FastEthernet0/1.20         30.78.87.1      YES NVRAM  up                    up  
+Loopback0                  1.1.1.1         YES NVRAM  up                    up  
+Tunnel1                    172.16.1.1      YES NVRAM  up                    up  
+HQ1#
+
+
+
+
+
+
+BR1#show ip int brief
+Interface                  IP-Address      OK? Method Status                Protocol
+FastEthernet0/0            unassigned      YES NVRAM  administratively down down
+FastEthernet0/1            192.168.254.3   YES NVRAM  up                    up  
+FastEthernet0/1.10         172.16.3.3      YES NVRAM  up                    up  
+Serial0/1/0                unassigned      YES NVRAM  up                    up  
+Serial0/1/1                unassigned      YES NVRAM  up                    up  
+Serial0/2/0                22.84.4.2       YES NVRAM  up                    up  
+Serial0/2/1                unassigned      YES NVRAM  administratively down down
+Loopback0                  3.3.3.3         YES NVRAM  up                    up  
+Multilink1                 100.45.5.2      YES IPCP   up                    up  
+Tunnel1                    172.16.1.2      YES NVRAM  up                    up  
+
+
+BR1#show ip nhrp brief
+   Target             Via            NBMA           Mode   Intfc   Claimed
+172.16.1.1/32        172.16.1.1      1.1.1.1         static   Tu1     <   >
+
+
+BR1#show ipv6 nhrp brief
+   Target                        Via
+2001:1::/64                  2001:1::1
+    NBMA: 1.1.1.1               Mode: static    Intfc: Tu1      Claimed: <   >
+FE80::223:4FF:FE14:A198/128                  FE80::223:4FF:FE14:A198
+    NBMA: 1.1.1.1               Mode: static    Intfc: Tu1      Claimed: <   >

@@ -1,0 +1,80 @@
+### IPoE (проверка)
+
+---
+
+* **HQ1**
+
+  ```
+  HQ1#show ip int brief
+  Interface                  IP-Address      OK? Method Status                Protocol
+  FastEthernet0/0            192.168.254.1   YES NVRAM  up                    up  
+  FastEthernet0/0.1000       10.0.100.1      YES NVRAM  up                    up  
+  FastEthernet0/0.1200       172.16.20.1     YES NVRAM  up                    up  
+  FastEthernet0/0.1300       30.78.21.1      YES NVRAM  up                    up  
+  FastEthernet0/1            unassigned      YES NVRAM  up                    up  
+  FastEthernet0/1.10         172.16.3.1      YES NVRAM  up                    up  
+  FastEthernet0/1.20         30.78.87.1      YES NVRAM  up                    up  
+  Loopback0                  1.1.1.1         YES NVRAM  up                    up  
+  Tunnel1                    172.16.1.1      YES NVRAM  up                    up  
+  
+  ```
+
+* **BR1**
+
+  ```
+  BR1#show ip int brief
+  Interface                  IP-Address      OK? Method Status                Protocol
+  FastEthernet0/0            unassigned      YES NVRAM  administratively down down
+  FastEthernet0/1            192.168.254.3   YES NVRAM  up                    up  
+  FastEthernet0/1.10         172.16.3.3      YES NVRAM  up                    up  
+  Serial0/1/0                unassigned      YES NVRAM  up                    up  
+  Serial0/1/1                unassigned      YES NVRAM  up                    up  
+  Serial0/2/0                22.84.4.2       YES NVRAM  up                    up  
+  Serial0/2/1                unassigned      YES NVRAM  administratively down down
+  Loopback0                  3.3.3.3         YES NVRAM  up                    up  
+  Multilink1                 100.45.5.2      YES IPCP   up                    up  
+  Tunnel1                    172.16.1.2      YES NVRAM  up                    up  
+  ```
+
+* **FW1**
+
+  ```
+  FW1# show int ip brief
+  Interface                  IP-Address      OK? Method Status                Protocol
+  Ethernet0/0                unassigned      YES unset  up                    up
+  Ethernet0/1                unassigned      YES unset  up                    up
+  Ethernet0/2                unassigned      YES unset  up                    up
+  Ethernet0/3                unassigned      YES unset  up                    up
+  Ethernet0/4                unassigned      YES unset  administratively down down
+  Ethernet0/5                unassigned      YES unset  up                    up
+  Ethernet0/6                unassigned      YES unset  administratively down down
+  Ethernet0/7                unassigned      YES unset  administratively down down
+  Internal-Data0/0           unassigned      YES unset  up                    up
+  Internal-Data0/1           unassigned      YES unset  up                    up
+  Vlan1                      192.168.254.2   YES CONFIG up                    up
+  Vlan10                     172.16.3.2      YES CONFIG up                    up
+  Vlan20                     30.78.87.2      YES CONFIG up                    up
+  Vlan111                    100.45.10.2     YES CONFIG up                    up
+  Vlan901                    22.84.4.6       YES CONFIG up                    up
+  Virtual0                   127.1.0.1       YES unset  up                    up
+  ```
+  
+  ```bash
+  FW1# ping 100.45.5.2   #BR1 > ISP1
+  Type escape sequence to abort.
+  Sending 5, 100-byte ICMP Echos to 100.45.5.2, timeout is 2 seconds:
+  !!!!!
+  Success rate is 100 percent (5/5), round-trip min/avg/max = 10/18/20 ms
+  FW1# ping 22.84.4.2    #BR1 > ISP2
+  Type escape sequence to abort.
+  Sending 5, 100-byte ICMP Echos to 22.84.4.2, timeout is 2 seconds:
+  !!!!!
+  Success rate is 100 percent (5/5), round-trip min/avg/max = 20/28/30 ms
+  FW1# ping 172.16.3.3   #BR1 > ISP3 (L2 VPN)
+  Type escape sequence to abort.
+  Sending 5, 100-byte ICMP Echos to 172.16.3.3, timeout is 2 seconds:
+  !!!!!
+  Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
+  ```
+
+  

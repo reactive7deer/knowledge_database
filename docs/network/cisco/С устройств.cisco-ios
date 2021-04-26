@@ -1,0 +1,735 @@
+HQ1#show run
+Building configuration...
+Current configuration : 1951 bytes
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname HQ1
+!
+boot-start-marker
+boot-end-marker
+!
+enable password 7 00130014
+!
+aaa new-model
+!
+!
+aaa authentication login default local
+aaa authentication login method_man local group radius
+aaa authorization console
+aaa authorization exec default local
+aaa authorization exec method_man local group radius
+!
+!
+aaa session-id common
+memory-size iomem 5
+ip cef
+!
+!
+!
+!
+ip domain name worldskills.ru
+!
+multilink bundle-name authenticated
+!
+!
+username wsruser privilege 15 secret 5 $1$hCe3$1IN6cai0bmmGkJN.1.OQj/
+archive
+ log config
+  hidekeys
+!
+!
+!
+!
+ip ssh version 2
+!
+!
+!
+!
+interface Loopback0
+ ip address 1.1.1.1 255.255.255.255
+ ipv6 address 2001:A:B:1::1/64
+!
+interface FastEthernet0/0
+ no ip address
+ speed 100
+ full-duplex
+!
+interface FastEthernet0/0.1000
+ encapsulation dot1Q 1000
+ ip address 10.0.100.1 255.255.255.0
+!
+interface FastEthernet0/0.1200
+ encapsulation dot1Q 1200
+ ip address 172.16.20.1 255.255.255.0
+!
+interface FastEthernet0/0.1300
+ encapsulation dot1Q 1300
+ ip address 30.78.21.1 255.255.255.0
+ ipv6 address 2001:A:B:DEAD::1/64
+!
+interface FastEthernet0/1
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1.10
+ encapsulation dot1Q 10
+ ip address 172.16.3.1 255.255.255.0
+ ipv6 address 2001:4::1/64
+!
+interface FastEthernet0/1.20
+ encapsulation dot1Q 20
+ ip address 30.78.87.1 255.255.255.248
+ ipv6 address 2001:3::1/64
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+!
+!
+radius-server host 172.16.20.20 auth-port 1812 acct-port 1813 key 7 030752180500
+!
+control-plane
+!
+!
+line con 0
+line aux 0
+line vty 0 4
+ authorization exec method_man
+ login authentication method_man
+ transport input all
+line vty 5 15
+ authorization exec method_man
+ login authentication method_man
+ transport input all
+!
+!
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SW1#show run
+Building configuration...
+
+Current configuration : 5274 bytes
+!
+! Last configuration change at 13:53:58 UTC Sat Oct 17 2020 by wsruser
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+service compress-config
+!
+hostname SW1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable password 7 095B5D1B
+!
+username wsruser privilege 15 secret 5 $1$82t.$daTcDQzY48iFzSl53tGsZ/
+aaa new-model
+!
+!
+aaa authentication login default local
+aaa authorization console
+aaa authorization exec default local
+!
+!
+!
+!
+!
+!
+aaa session-id common
+!
+!
+!
+!
+!
+vtp mode off
+!
+!
+!
+ip domain-name worldskills.ru
+ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode mst
+spanning-tree extend system-id
+!
+spanning-tree mst configuration
+ name WSR39
+ instance 1 vlan 1000, 1200, 1300
+ instance 2 vlan 1500, 1600
+!
+spanning-tree mst 1 priority 24576
+!
+vlan internal allocation policy ascending
+!
+vlan 1000
+ name MGT
+!
+vlan 1200
+ name DATA
+!
+vlan 1300
+ name OFFICE
+!
+vlan 1500
+ name NATIVE
+!
+vlan 1600
+ name SHUTDOWN
+!
+!
+interface Port-channel1
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk native vlan 1500
+ switchport mode dynamic desirable
+!
+interface Port-channel2
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk native vlan 1500
+ switchport mode dynamic desirable
+!
+interface GigabitEthernet0/0
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk native vlan 1500
+ switchport mode dynamic desirable
+ media-type rj45
+ negotiation auto
+ channel-group 2 mode desirable
+!
+interface GigabitEthernet0/1
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk native vlan 1500
+ switchport mode dynamic desirable
+ media-type rj45
+ negotiation auto
+ channel-group 2 mode desirable
+!
+interface GigabitEthernet0/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet0/3
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/0
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk native vlan 1500
+ switchport mode dynamic desirable
+ media-type rj45
+ negotiation auto
+ channel-group 1 mode active
+!
+interface GigabitEthernet1/1
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk native vlan 1500
+ switchport mode dynamic desirable
+ media-type rj45
+ negotiation auto
+ channel-group 1 mode active
+!
+interface GigabitEthernet1/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/3
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/0
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport nonegotiate
+ media-type rj45
+ duplex full
+ no negotiation auto
+!
+interface GigabitEthernet2/1
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/3
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/0
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/1
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/3
+ media-type rj45
+ negotiation auto
+!
+interface Vlan1000
+ ip address 10.0.100.10 255.255.255.0
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+ip ssh version 2
+!
+!
+control-plane
+!
+line con 0
+line aux 0
+line vty 0 4
+ transport input all
+line vty 5 15
+ transport input all
+!
+!
+end
+
+
+
+
+
+
+
+
+
+
+SW2#show run
+Building configuration...
+
+Current configuration : 4819 bytes
+!
+! Last configuration change at 14:02:54 UTC Sat Oct 17 2020 by wsruser
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+service compress-config
+!
+hostname SW2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable password 7 044C1814
+!
+username wsruser privilege 15 secret 5 $1$szQZ$PvXaTQJiIG5Av9tzG9okU.
+aaa new-model
+!
+!
+aaa authentication login default local
+aaa authorization console
+aaa authorization exec default local
+!
+!
+!
+!
+!
+!
+aaa session-id common
+!
+!
+!
+!
+!
+vtp mode off
+!
+!
+!
+ip domain-name worldskills.ru
+ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode mst
+spanning-tree extend system-id
+!
+spanning-tree mst configuration
+ name WSR39
+ instance 1 vlan 1000, 1200, 1300
+ instance 2 vlan 1500, 1600
+!
+spanning-tree mst 2 priority 24576
+!
+vlan internal allocation policy ascending
+!
+vlan 1000
+ name MGT
+!
+vlan 1200
+ name DATA
+!
+vlan 1300
+ name OFFICE
+!
+vlan 1500
+ name NATIVE
+!
+vlan 1600
+ name SHUTDOWN
+!
+!
+interface Port-channel1
+!
+interface Port-channel2
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk native vlan 1500
+!
+interface GigabitEthernet0/0
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk native vlan 1500
+ media-type rj45
+ negotiation auto
+ channel-group 2 mode auto
+!
+interface GigabitEthernet0/1
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk native vlan 1500
+ media-type rj45
+ negotiation auto
+ channel-group 2 mode auto
+!
+interface GigabitEthernet0/2
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 1500
+ switchport mode trunk
+ switchport nonegotiate
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet0/3
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/0
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/1
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/3
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/0
+ switchport access vlan 1300
+ switchport mode access
+ switchport nonegotiate
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/1
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/3
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/0
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/1
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/3
+ media-type rj45
+ negotiation auto
+!
+interface Vlan1000
+ ip address 10.0.100.20 255.255.255.0
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+ip ssh version 2
+!
+!
+!
+!
+!
+!
+!
+control-plane
+!
+line con 0
+line aux 0
+line vty 0 4
+ transport input all
+line vty 5 15
+ transport input all
+!
+!
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+SW3#show run
+Building configuration...
+
+Current configuration : 4990 bytes
+!
+! Last configuration change at 14:00:59 UTC Sat Oct 17 2020 by wsruser
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+service compress-config
+!
+hostname SW3
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable password 7 01041516
+!
+username wsruser privilege 15 secret 5 $1$8FlK$0z5dJiJSUCVu9geprxlR4.
+aaa new-model
+!
+!
+aaa authentication login default local
+aaa authorization console
+aaa authorization exec default local
+!
+!
+!
+!
+!
+!
+aaa session-id common
+!
+!
+!
+!
+!
+vtp mode off
+!
+!
+!
+ip domain-name worldskills.ru
+ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode mst
+spanning-tree extend system-id
+!
+spanning-tree mst configuration
+ name WSR39
+ instance 1 vlan 1000, 1200, 1300
+ instance 2 vlan 1500, 1600
+!
+!
+vlan internal allocation policy ascending
+!
+vlan 1000
+ name MGT
+!
+vlan 1200
+ name DATA
+!
+vlan 1300
+ name OFFICE
+!
+vlan 1500
+ name NATIVE
+!
+vlan 1600
+ name SHUTDOWN
+!
+!
+interface Port-channel1
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 1500
+ switchport mode trunk
+!
+interface GigabitEthernet0/0
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet0/1
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet0/2
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 1500
+ switchport mode trunk
+ switchport nonegotiate
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet0/3
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/0
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 1500
+ switchport mode trunk
+ media-type rj45
+ negotiation auto
+ channel-group 1 mode passive
+!
+interface GigabitEthernet1/1
+ switchport trunk allowed vlan 1000,1200,1300,1500,1600
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 1500
+ switchport mode trunk
+ media-type rj45
+ negotiation auto
+ channel-group 1 mode passive
+!
+interface GigabitEthernet1/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet1/3
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/0
+ switchport access vlan 1200
+ switchport mode access
+ switchport nonegotiate
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/1
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet2/3
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/0
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/1
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/2
+ media-type rj45
+ negotiation auto
+!
+interface GigabitEthernet3/3
+ media-type rj45
+ negotiation auto
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan1000
+ ip address 10.0.100.30 255.255.255.0
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+ip ssh version 2
+!
+!
+!
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+line aux 0
+line vty 0 4
+ transport input all
+line vty 5 15
+ transport input all
+!
+!
+end

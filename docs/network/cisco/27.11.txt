@@ -1,0 +1,1584 @@
+27.11
+
+
+--------------------->  SW1  <---------------------
+
+SW1#show run
+Building configuration...
+
+Current configuration : 6199 bytes
+!
+! Last configuration change at 14:01:11 MSK Mon Mar 1 1993 by wsruser
+!
+version 15.0
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname SW1
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$aI5P$z2D4Q36y1pKP/KiLoB1wf0
+enable password 7 121A0C041104
+!
+username wsruser privilege 15 secret 5 $1$p5o1$mS6hGv5FGsZGrztYsoN9U1
+aaa new-model
+!
+!
+aaa authentication login default local
+aaa authorization console
+aaa authorization exec default local
+!
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone MSK 3 0
+system mtu routing 1500
+vtp mode off
+!
+!
+ip domain-name worldskills.ru
+!
+!
+crypto pki trustpoint TP-self-signed-2642632960
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-2642632960
+ revocation-check none
+ rsakeypair TP-self-signed-2642632960
+!
+!
+crypto pki certificate chain TP-self-signed-2642632960
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274
+  69666963 6174652D 32363432 36333239 3630301E 170D3933 30333031 30303031
+  30315A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D32 36343236
+  33323936 3030819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281
+  81009322 A9A8CA16 4F9B3BE9 7D6F92D1 C1BB2835 AB578215 706C1C80 7DD3F708
+  067C73DC B6C0FA36 B4B1B1F0 31A29884 13D687BB C9F0A984 6C56A278 5CF23DEF
+  B7192C94 D8D78189 09DA5309 8E3F92FD 445A4F4D 318E9E42 CAC4D79A E0D9EFCF
+  F5CB9113 BE8CD394 8FB6755D 0CB8AAB8 9DC7253B 52F305D7 B98BBC4E 288E2E7E
+  5D8B0203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603
+  551D2304 18301680 14615820 BE6DF449 503F2DA1 0F620481 5B70FAB9 6A301D06
+  03551D0E 04160414 615820BE 6DF44950 3F2DA10F 6204815B 70FAB96A 300D0609
+  2A864886 F70D0101 05050003 81810002 6F603DF1 967FCEFA 70A8C6F2 5C1D622F
+  089A2170 8EA795E5 67100BA2 07F0FF1F 8FF913B9 7522B9C4 FCE4A94B 58E89CAB
+  2AA22836 020D98E2 C12516EF DA39635F C943EFBD 75A78959 A38E6291 E1ED6704
+  4D98D6A3 DF3176E1 AE06A0F4 C8ACA27E 6E5FF278 BE7AE6B5 41A37074 CB39B574
+  1EC6AD74 E8C0EBB6 8078B10B 94BD1C
+        quit
+!
+!
+!
+!
+!
+!
+spanning-tree mode mst
+spanning-tree extend system-id
+!
+spanning-tree mst configuration
+ name WSR39
+ instance 1 vlan 1000, 1200, 1300
+ instance 2 vlan 1500, 1600
+!
+spanning-tree mst 1 priority 24576
+!
+vlan internal allocation policy ascending
+!
+vlan 100
+!
+vlan 1000
+ name MGT
+!
+vlan 1200
+ name DATA
+!
+vlan 1300
+ name OFFICE
+!
+vlan 1500
+ name NATIVE
+!
+vlan 1600
+ name SHUTDOWN
+!
+ip ssh version 2
+!
+!
+!
+!
+!
+interface Port-channel1
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ switchport mode dynamic desirable
+!
+interface Port-channel2
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ switchport mode dynamic desirable
+!
+interface FastEthernet0/1
+!
+interface FastEthernet0/2
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/3
+ description >> SW2 <<
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ switchport mode dynamic desirable
+ channel-group 1 mode active
+!
+interface FastEthernet0/4
+ description >> SW2 <<
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ switchport mode dynamic desirable
+ channel-group 1 mode active
+!
+interface FastEthernet0/5
+ description >> SW3 <<
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ switchport mode dynamic desirable
+ channel-group 2 mode desirable
+!
+interface FastEthernet0/6
+ description >> SW3 <<
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ switchport mode dynamic desirable
+ channel-group 2 mode desirable
+!
+interface FastEthernet0/7
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/8
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/9
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/10
+ description >> HQ1 <<
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ switchport mode trunk
+ switchport nonegotiate
+!
+interface FastEthernet0/11
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/12
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/13
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/14
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/15
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/16
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/17
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/18
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/19
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/20
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/21
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/22
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/23
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/24
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface GigabitEthernet0/1
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface GigabitEthernet0/2
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface Vlan1
+ ip address 192.168.254.10 255.255.255.0
+!
+interface Vlan1000
+ ip address 10.0.100.10 255.255.255.0
+!
+ip default-gateway 10.0.100.1
+ip http server
+ip http secure-server
+!
+!
+!
+vstack
+!
+line con 0
+line vty 0 4
+ password 7 05080F1C2243
+ transport input all
+line vty 5 15
+ transport input all
+!
+ntp source Vlan1000
+ntp server 172.16.20.20 prefer source Vlan1000 version 2
+end
+
+
+
+
+--------------------->  SW2  <---------------------
+
+SW2#show run
+Building configuration...
+
+Current configuration : 5693 bytes
+!
+! Last configuration change at 03:20:29 UTC Tue Mar 2 1993 by wsruser
+!
+version 15.0
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname SW2
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$Y6zF$NYiM6SfcsNRNqTs18Tcdh.
+enable password 7 05080F1C2243
+!
+username wsruser privilege 15 secret 5 $1$8eMF$bmaMiaqusmQfapTT1fGQN1
+aaa new-model
+!
+!
+aaa authentication login default local
+aaa authorization console
+aaa authorization exec default local
+!
+!
+!
+!
+!
+!
+aaa session-id common
+system mtu routing 1500
+vtp mode off
+!
+!
+ip domain-name worldskills.ru
+!
+!
+crypto pki trustpoint TP-self-signed-3339942912
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-3339942912
+ revocation-check none
+ rsakeypair TP-self-signed-3339942912
+!
+!
+crypto pki certificate chain TP-self-signed-3339942912
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274
+  69666963 6174652D 33333339 39343239 3132301E 170D3933 30333031 30303031
+  30305A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 33333939
+  34323931 3230819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281
+  8100D533 0DEC43A7 33D42621 19997BBC 32026340 364B5858 3EC0C25B 622C50C7
+  970A0407 89BDFB7F F7FB8877 F91BC83C 38AFE7DF D469FC76 75EB56DE 933D0F01
+  077A63B9 BBC42D37 644271F7 6772387F 15E08B2E 29E609BF 5FD5611E 2C5DF367
+  9602807F 6C749B46 87F7FB1C 1062C9FC 08FCFCDA 23640764 D8C6FA6F 4D0DE58C
+  327D0203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603
+  551D2304 18301680 14884F54 F53D0C2E A28A19E2 083A453C B563B387 B2301D06
+  03551D0E 04160414 884F54F5 3D0C2EA2 8A19E208 3A453CB5 63B387B2 300D0609
+  2A864886 F70D0101 05050003 8181008F 9E4E5E9E D6D26824 FBF4050B AA3E8037
+  5C6939BB B84D45D6 54C96283 0E1C9E89 5671E7AD 374BF909 7E252948 9B628A8C
+  0570DFA2 AFB62CEA 11D79D0E 04ADCD1B 3A5B2A10 611E3E7D 11DB9085 44D090C9
+  EAF25621 EF68D997 8031F24A 67ECB6F5 B3ACD973 B2947005 1533C5A4 2FB37781
+  7D0EE6CA E1428FBD 8F97D42E 51BEC4
+        quit
+!
+!
+!
+!
+!
+!
+spanning-tree mode mst
+spanning-tree extend system-id
+!
+spanning-tree mst configuration
+ name WSR39
+ instance 1 vlan 1000, 1200, 1300
+ instance 2 vlan 1500, 1600
+!
+spanning-tree mst 2 priority 24576
+!
+vlan internal allocation policy ascending
+!
+vlan 1000
+ name MGT
+!
+vlan 1200
+ name DATA
+!
+vlan 1300
+ name OFFICE
+!
+vlan 1500
+ name NATIVE
+!
+vlan 1600
+ name SHUTDOWN
+!
+ip ssh version 2
+!
+!
+!
+!
+!
+interface Port-channel1
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+!
+interface FastEthernet0/1
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/2
+ description >> SW2 <<
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ switchport mode trunk
+ switchport nonegotiate
+!
+interface FastEthernet0/3
+ description >> SW1 <<
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ channel-group 1 mode passive
+!
+interface FastEthernet0/4
+ description >> SW1 <<
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ channel-group 1 mode passive
+!
+interface FastEthernet0/5
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/6
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/7
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/8
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/9
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/10
+ switchport access vlan 1300
+!
+interface FastEthernet0/11
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/12
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/13
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/14
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/15
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/16
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/17
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/18
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/19
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/20
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/21
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/22
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/23
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/24
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface GigabitEthernet0/1
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface GigabitEthernet0/2
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface Vlan1
+ ip address 192.168.254.20 255.255.255.0
+!
+interface Vlan1000
+ ip address 10.0.100.20 255.255.255.0
+!
+ip default-gateway 10.0.100.1
+ip http server
+ip http secure-server
+!
+!
+!
+vstack
+!
+line con 0
+line vty 0 4
+ password 7 070C285F4D06
+ transport input all
+line vty 5 15
+ transport input all
+!
+ntp server 172.16.20.20
+end
+
+
+
+
+
+
+--------------------->  SW3  <---------------------
+
+SW3#show run
+Building configuration...
+
+Current configuration : 5644 bytes
+!
+version 15.0
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname SW3
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$yBd5$x1USJH8nhDCQQUMdJL1mb1
+enable password 7 045802150C2E
+!
+username wsruser privilege 15 secret 5 $1$L.Qv$OTiWQM6i53mSi3B6K7zOo.
+aaa new-model
+!
+!
+aaa authentication login default local
+aaa authorization console
+aaa authorization exec default local
+!
+!
+!
+!
+!
+!
+aaa session-id common
+system mtu routing 1500
+vtp mode off
+!
+!
+ip domain-name worldskills.ru
+!
+!
+crypto pki trustpoint TP-self-signed-966822016
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-966822016
+ revocation-check none
+ rsakeypair TP-self-signed-966822016
+!
+!
+crypto pki certificate chain TP-self-signed-966822016
+ certificate self-signed 01
+  30820229 30820192 A0030201 02020101 300D0609 2A864886 F70D0101 05050030
+  30312E30 2C060355 04031325 494F532D 53656C66 2D536967 6E65642D 43657274
+  69666963 6174652D 39363638 32323031 36301E17 0D393330 33303130 30303130
+  345A170D 32303031 30313030 30303030 5A303031 2E302C06 03550403 1325494F
+  532D5365 6C662D53 69676E65 642D4365 72746966 69636174 652D3936 36383232
+  30313630 819F300D 06092A86 4886F70D 01010105 0003818D 00308189 02818100
+  9994AD70 1D237F2E 29965289 FC8896A4 FC310563 89EF7757 BAC539C3 72A1CCE6
+  7BBE5477 4EEEF6B6 421741BB E71E0F53 347BDC1A 2250A840 5779BF4C BC1DE1CD
+  AFAEFF6A 08E563F9 7EC7465A FC072410 B043AF52 065A2CD2 7C9E554D 1B1197B8
+  2F5761C3 ABA04AB4 E816FDCA 9D0BA658 95D57460 4E301D6A A901E7AC 6C474269
+  02030100 01A35330 51300F06 03551D13 0101FF04 05300301 01FF301F 0603551D
+  23041830 168014AB 300EE59B D44E0046 0EC2915F 4CD6166F D39D5E30 1D060355
+  1D0E0416 0414AB30 0EE59BD4 4E00460E C2915F4C D6166FD3 9D5E300D 06092A86
+  4886F70D 01010505 00038181 0037A34C 9B64CB83 3B2FE54F 1F65449D 93680FC1
+  5E5B6AD5 F89762BF 9D489E3C F325CBB7 F51A87EC 25ADD067 706B56B4 9213EBE3
+  468A15D3 2968C309 8154C8A9 FFC7069B 78222BF3 7CA82540 3F41CF9B 9875B8FC
+  4D679FE1 F68ADDBC F410A0CE 5B946838 F0DF07DC D000C2C3 06AAA94C 7A1C9456
+  8A8ABD5C 5EC236FC 99B6F886 0C
+        quit
+!
+!
+!
+!
+!
+!
+spanning-tree mode mst
+spanning-tree extend system-id
+!
+spanning-tree mst configuration
+ name WSR39
+ instance 1 vlan 1000, 1200, 1300
+ instance 2 vlan 1500, 1600
+!
+!
+vlan internal allocation policy ascending
+!
+vlan 1000
+ name MGT
+!
+vlan 1200
+ name DATA
+!
+vlan 1300
+ name OFFICE
+!
+vlan 1500
+ name NATIVE
+!
+vlan 1600
+ name SHUTDOWN
+!
+ip ssh version 2
+!
+!
+!
+!
+!
+interface Port-channel2
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+!
+interface FastEthernet0/1
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/2
+ description >> SW2 <<
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ switchport mode trunk
+ switchport nonegotiate
+!
+interface FastEthernet0/3
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/4
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/5
+ description >> SW1 <<
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ channel-group 2 mode auto
+!
+interface FastEthernet0/6
+ description >> SW1 <<
+ switchport trunk native vlan 1500
+ switchport trunk allowed vlan 1,1000,1200,1300,1500
+ channel-group 2 mode auto
+!
+interface FastEthernet0/7
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/8
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/9
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/10
+ description >> SRV1 <<
+ switchport access vlan 1200
+ switchport mode access
+ switchport nonegotiate
+!
+interface FastEthernet0/11
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/12
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/13
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/14
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/15
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/16
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/17
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/18
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/19
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/20
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/21
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/22
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/23
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/24
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface GigabitEthernet0/1
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface GigabitEthernet0/2
+ switchport access vlan 1600
+ switchport mode access
+ shutdown
+!
+interface Vlan1
+ ip address 192.168.254.30 255.255.255.0
+!
+interface Vlan1000
+ ip address 10.0.100.30 255.255.255.0
+!
+ip default-gateway 10.0.100.1
+ip http server
+ip http secure-server
+!
+!
+!
+vstack
+!
+line con 0
+line vty 0 4
+ password 7 1511021F0725
+ transport input all
+line vty 5 15
+ transport input all
+!
+ntp server 172.16.20.20
+end
+
+
+
+
+
+
+--------------------->  HQ1  <---------------------
+
+HQ1#show run
+Building configuration...
+
+
+Current configuration : 4630 bytes
+!
+! Last configuration change at 16:49:05 UTC Mon Nov 23 2020 by wsruser
+! NVRAM config last updated at 18:54:56 UTC Mon Nov 23 2020 by wsruser
+! NVRAM config last updated at 18:54:56 UTC Mon Nov 23 2020 by wsruser
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname HQ1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$z8c4$UnJ9LvRB7uYpo7eDRQKi/.
+enable password 7 05080F1C2243
+!
+aaa new-model
+!
+!
+aaa group server radius AAA_RAD
+ server-private 172.16.20.20 auth-port 1812 acct-port 1813 key 7 1511021F0725
+!
+aaa authentication login default local
+aaa authentication login method_man local group AAA_RAD
+aaa authorization console
+aaa authorization exec default local
+aaa authorization exec method_man local group AAA_RAD
+!
+!
+!
+!
+!
+aaa session-id common
+!
+!
+dot11 syslog
+ip source-route
+!
+!
+ip cef
+!
+ip dhcp excluded-address 30.78.21.1
+!
+ip dhcp pool OFFICE
+ network 30.78.21.0 255.255.255.0
+ default-router 30.78.21.1
+ option 42 ip 172.16.20.20
+!
+ip dhcp pool PC1
+ host 30.78.21.10 255.255.255.0
+ client-identifier 0100.5056.90a1.bb
+ client-name PC1
+ option 42 ip 172.16.20.20
+ default-router 30.78.21.1
+!
+!
+ip domain name worldskills.ru
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+voice-card 0
+!
+crypto pki token default removal timeout 0
+!
+!
+!
+!
+license udi pid CISCO2811 sn FCZ123770RH
+archive
+ path tftp://172.16.20.20/$h-$t.cfg
+ write-memory
+username wsruser privilege 15 secret 5 $1$p0wV$F//SWmVO9Lui43Op/MaKt0
+!
+redundancy
+!
+!
+ip ssh logging events
+ip ssh version 2
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 1.1.1.1 255.255.255.255
+ ipv6 address 2001:A:B:1::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+interface Tunnel1
+ ip address 172.16.1.1 255.255.255.0
+ no ip redirects
+ ip nhrp map multicast dynamic
+ ip nhrp network-id 4294967295
+ ipv6 address 2001:1::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+ ipv6 nhrp map multicast dynamic
+ ipv6 nhrp network-id 4294967295
+ tunnel source Loopback0
+ tunnel mode gre multipoint
+!
+interface FastEthernet0/0
+ ip address 192.168.254.1 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/0.1000
+ description >> MGT <<
+ encapsulation dot1Q 1000
+ ip address 10.0.100.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface FastEthernet0/0.1200
+ description >> DATA <<
+ encapsulation dot1Q 1200
+ ip address 172.16.20.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface FastEthernet0/0.1300
+ description >> OFFICE <<
+ encapsulation dot1Q 1300
+ ip address 30.78.21.1 255.255.255.0
+ ipv6 address 2001:A:B:DEAD::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+interface FastEthernet0/1
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1.10
+ description >> L2 VPN <<
+ encapsulation dot1Q 10
+ ip address 172.16.3.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+ ipv6 address 2001:4::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+interface FastEthernet0/1.20
+ description >> FW1 <<
+ encapsulation dot1Q 20
+ ip address 30.78.87.1 255.255.255.248
+ ip nat outside
+ ip virtual-reassembly in
+ ipv6 address 2001:3::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+router ospf 1
+ passive-interface default
+ no passive-interface FastEthernet0/1.10
+ no passive-interface Tunnel1
+ network 10.0.100.0 0.0.0.255 area 51
+ network 172.16.1.0 0.0.0.255 area 0
+ network 172.16.3.0 0.0.0.255 area 0
+ network 172.16.20.0 0.0.0.255 area 51
+ default-information originate always
+!
+router bgp 65000
+ bgp log-neighbor-changes
+ network 1.1.1.1 mask 255.255.255.255
+ network 30.78.21.0 mask 255.255.255.0
+ network 30.78.87.0 mask 255.255.255.248
+ neighbor 30.78.87.2 remote-as 65000
+!
+ip forward-protocol nd
+no ip http server
+no ip http secure-server
+!
+!
+ip nat inside source list 1 interface Loopback0 overload
+!
+logging origin-id hostname
+logging source-interface FastEthernet0/0.1200
+logging 172.16.20.20
+access-list 1 permit 10.0.100.0 0.0.0.255
+access-list 1 permit 172.16.20.0 0.0.0.255
+access-list 1 permit 10.8.8.0 0.0.0.255
+ipv6 router eigrp 6000
+!
+!
+!
+!
+!
+snmp-server group WSR v3 auth
+snmp-server group WSR v3 priv read RO
+snmp-server location MSK, Russia
+snmp-server contact admin@wsr.ru
+snmp-server host 172.16.20.20 version 3 auth snmpuser
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+mgcp profile default
+!
+!
+!
+!
+!
+gatekeeper
+ shutdown
+!
+!
+!
+line con 0
+line aux 0
+line vty 0 4
+ password 7 060506324F41
+ authorization exec method_man
+ login authentication method_man
+ transport input all
+line vty 5 15
+ authorization exec method_man
+ login authentication method_man
+ transport input all
+!
+scheduler allocate 20000 1000
+ntp server 172.16.20.20
+end
+
+
+
+
+
+
+--------------------->  FW1  <---------------------
+
+FW1# show run
+: Saved
+:
+: Serial Number: JMX1429426E
+: Hardware:   ASA5505, 512 MB RAM, CPU Geode 500 MHz
+:
+ASA Version 9.2(4)27
+!
+hostname FW1
+domain-name worldskills.ru
+enable password B2AG5g3GthiZsiAW encrypted
+xlate per-session deny tcp any4 any4
+xlate per-session deny tcp any4 any6
+xlate per-session deny tcp any6 any4
+xlate per-session deny tcp any6 any6
+xlate per-session deny udp any4 any4 eq domain
+xlate per-session deny udp any4 any6 eq domain
+xlate per-session deny udp any6 any4 eq domain
+xlate per-session deny udp any6 any6 eq domain
+names
+!
+interface Ethernet0/0
+ description >> ISP1 <<
+ switchport access vlan 111
+!
+interface Ethernet0/1
+ description >> ISP2 <<
+ switchport trunk allowed vlan 901
+ switchport mode trunk
+!
+interface Ethernet0/2
+ switchport trunk allowed vlan 10,20,1500
+ switchport trunk native vlan 1500
+ switchport mode trunk
+!
+interface Ethernet0/3
+ switchport trunk allowed vlan 1,10
+ switchport trunk native vlan 1
+ switchport mode trunk
+!
+interface Ethernet0/4
+ shutdown
+!
+interface Ethernet0/5
+!
+interface Ethernet0/6
+ shutdown
+!
+interface Ethernet0/7
+ shutdown
+!
+interface Vlan1
+ nameif inside
+ security-level 100
+ ip address 192.168.254.2 255.255.255.0
+!
+interface Vlan10
+ description >> L2 VPN <<
+ nameif L2VPN
+ security-level 100
+ ip address 172.16.3.2 255.255.255.0
+ ipv6 address 2001:4::2/64
+ ipv6 enable
+!
+interface Vlan20
+ description >> HQ <<
+ nameif HQ
+ security-level 100
+ ip address 30.78.87.2 255.255.255.248
+ ipv6 address 2001:3::2/64
+ ipv6 enable
+!
+interface Vlan111
+ description >> ISP1 <<
+ nameif ISP1
+ security-level 0
+ ip address 100.45.10.2 255.255.255.252
+!
+interface Vlan901
+ description >> ISP2 <<
+ nameif ISP2
+ security-level 0
+ ip address 22.84.4.6 255.255.255.252
+!
+ftp mode passive
+dns server-group DefaultDNS
+ domain-name worldskills.ru
+same-security-traffic permit inter-interface
+same-security-traffic permit intra-interface
+access-list forward extended permit icmp any any
+access-list forward extended permit tcp any any
+access-list forward extended permit udp any any
+access-list forward extended permit ip any any
+pager lines 24
+logging enable
+logging trap informational
+logging device-id hostname
+logging host L2VPN 172.16.20.20
+mtu inside 1500
+mtu L2VPN 1500
+mtu HQ 1500
+mtu ISP1 1500
+mtu ISP2 1500
+no failover
+icmp unreachable rate-limit 1 burst-size 1
+no asdm history enable
+arp timeout 14400
+no arp permit-nonconnected
+access-group forward global
+router bgp 65000
+ bgp log-neighbor-changes
+ address-family ipv4 unicast
+  neighbor 100.45.10.1 remote-as 65001
+  neighbor 100.45.10.1 activate
+  neighbor 30.78.87.1 remote-as 65000
+  neighbor 30.78.87.1 activate
+  neighbor 22.84.4.5 remote-as 65002
+  neighbor 22.84.4.5 activate
+  network 100.45.10.0 mask 255.255.255.252
+  network 30.78.87.0 mask 255.255.255.248
+  network 22.84.4.4 mask 255.255.255.252
+  no auto-summary
+  no synchronization
+ exit-address-family
+!
+router ospf 1
+ network 172.16.3.0 255.255.255.0 area 0
+ log-adj-changes
+!
+timeout xlate 3:00:00
+timeout pat-xlate 0:00:30
+timeout conn 1:00:00 half-closed 0:10:00 udp 0:02:00 icmp 0:00:02
+timeout sunrpc 0:10:00 h323 0:05:00 h225 1:00:00 mgcp 0:05:00 mgcp-pat 0:05:00
+timeout sip 0:30:00 sip_media 0:02:00 sip-invite 0:03:00 sip-disconnect 0:02:00
+timeout sip-provisional-media 0:02:00 uauth 0:05:00 absolute
+timeout tcp-proxy-reassembly 0:01:00
+timeout floating-conn 0:00:00
+dynamic-access-policy-record DfltAccessPolicy
+user-identity default-domain LOCAL
+aaa authentication telnet console LOCAL
+aaa authentication enable console LOCAL
+aaa authentication ssh console LOCAL
+aaa authorization exec LOCAL
+snmp-server group WSR v3 priv
+snmp-server user snmpuser WSR v3 encrypted auth sha 17:7f:23:1d:e4:8b:82:d7:e5:f1:3c:c3:9f:11:35:c8:16:de:bd:f0 priv aes 128 17:7f:23:1d:e4:8b:82:d7:e5:f1:3c:c3:9f:11:35:c8
+snmp-server host L2VPN 172.16.20.20 version 3 snmpuser
+snmp-server location MSK, Russia
+snmp-server contact admin@wsr.ru
+crypto ipsec security-association pmtu-aging infinite
+crypto ca trustpool policy
+telnet 192.168.254.0 255.255.255.0 inside
+telnet timeout 5
+ssh stricthostkeycheck
+ssh 0.0.0.0 0.0.0.0 L2VPN
+ssh 0.0.0.0 0.0.0.0 HQ
+ssh 0.0.0.0 0.0.0.0 ISP1
+ssh 0.0.0.0 0.0.0.0 ISP2
+ssh timeout 5
+ssh version 2
+ssh key-exchange group dh-group1-sha1
+console timeout 0
+
+threat-detection basic-threat
+threat-detection statistics access-list
+no threat-detection statistics tcp-intercept
+ntp server 172.16.20.20
+webvpn
+ anyconnect-essentials
+username wsruser password X0csU2GfukWKGSJM encrypted privilege 15
+username cisco password 3USUcOPFUiMCO4Jk encrypted
+!
+class-map inspection_default
+ match default-inspection-traffic
+!
+!
+policy-map type inspect dns preset_dns_map
+ parameters
+  message-length maximum client auto
+  message-length maximum 512
+policy-map global_policy
+ class inspection_default
+  inspect dns preset_dns_map
+  inspect ftp
+  inspect h323 h225
+  inspect h323 ras
+  inspect ip-options
+  inspect netbios
+  inspect rsh
+  inspect rtsp
+  inspect skinny
+  inspect esmtp
+  inspect sqlnet
+  inspect sunrpc
+  inspect tftp
+  inspect sip
+  inspect xdmcp
+!
+service-policy global_policy global
+prompt hostname context
+no call-home reporting anonymous
+call-home
+ profile CiscoTAC-1
+  no active
+  destination address http https://tools.cisco.com/its/service/oddce/services/DDCEService
+  destination address email callhome@cisco.com
+  destination transport-method http
+  subscribe-to-alert-group diagnostic
+  subscribe-to-alert-group environment
+  subscribe-to-alert-group inventory periodic monthly
+  subscribe-to-alert-group configuration periodic monthly
+  subscribe-to-alert-group telemetry periodic daily
+password encryption aes
+Cryptochecksum:22df880c2ca90825dbdede38489e02a0
+: end
+
+
+
+
+
+
+--------------------->  BR1  <---------------------
+
+BR1#show run
+Building configuration...
+
+
+Current configuration : 4619 bytes
+!
+! Last configuration change at 16:50:59 UTC Mon Nov 23 2020 by wsruser
+! NVRAM config last updated at 16:05:25 UTC Mon Nov 23 2020 by wsruser
+! NVRAM config last updated at 16:05:25 UTC Mon Nov 23 2020 by wsruser
+version 15.1
+parser view sh_view
+ secret 5 $1$wt9V$Et.V2SRTW66OqcDxngtS20
+ commands exec include all traceroute
+ commands exec include all ping
+ commands exec include all show ip
+ commands exec include show cdp neighbors
+ commands exec include show cdp
+ commands exec include show
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname BR1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$0VJJ$9PYeGfmXm2SzQ4T6roJl//
+enable password 7 045802150C2E
+!
+aaa new-model
+!
+!
+aaa authentication login default local
+aaa authentication ppp default local
+aaa authorization console
+aaa authorization exec default local
+aaa authorization network default local
+!
+!
+!
+!
+!
+aaa session-id common
+!
+!
+dot11 syslog
+ip source-route
+!
+!
+ip cef
+!
+!
+!
+ip domain name worldskills.ru
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+vpdn enable
+!
+vpdn-group 1
+ ! Default L2TP VPDN group
+ accept-dialin
+  protocol l2tp
+  virtual-template 1
+ no l2tp tunnel authentication
+!
+!
+!
+!
+!
+!
+!
+!
+voice-card 0
+!
+crypto pki token default removal timeout 0
+!
+!
+!
+!
+license udi pid CISCO2811 sn FCZ103373R6
+username wsruser privilege 15 secret 5 $1$3H0n$D8edxZqEkuh5TXuMSEMwx.
+username user1 privilege 5 secret 5 $1$y/Nd$5ycsFRw3/nJbUMzg4w2yw1
+username user2 view sh_view secret 5 $1$Jh5z$HWHR3Ah.MFhcXIkeqLN1Q/
+username pc2user password 7 140711591C053938
+!
+redundancy
+!
+!
+ip ssh version 2
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 3.3.3.3 255.255.255.255
+ ipv6 address 2001:A:B:3::1/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+interface Tunnel1
+ ip address 172.16.1.2 255.255.255.0
+ no ip redirects
+ ip nhrp map 172.16.1.1 1.1.1.1
+ ip nhrp map multicast 1.1.1.1
+ ip nhrp network-id 4294967295
+ ip nhrp nhs 172.16.1.1
+ ipv6 address 2001:1::2/64
+ ipv6 enable
+ ipv6 eigrp 6000
+ ipv6 nhrp map 2001:1::1/64 1.1.1.1
+ ipv6 nhrp map multicast 1.1.1.1
+ ipv6 nhrp network-id 4294967295
+ ipv6 nhrp nhs 2001:1::1
+ tunnel source Loopback0
+ tunnel mode gre multipoint
+!
+interface Multilink1
+ ip address negotiated
+ ip nat outside
+ ip virtual-reassembly in
+ peer default ip address 100.45.5.1
+ ppp multilink
+ ppp multilink group 1
+!
+interface FastEthernet0/0
+ ip address 192.168.2.1 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1
+ ip address 192.168.254.3 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1.10
+ description >> L2 VPN <<
+ encapsulation dot1Q 10
+ ip address 172.16.3.3 255.255.255.0
+ ipv6 address 2001:4::3/64
+ ipv6 enable
+ ipv6 eigrp 6000
+!
+interface Serial0/1/0
+ no ip address
+ encapsulation ppp
+ no fair-queue
+ ppp multilink
+ ppp multilink group 1
+!
+interface Serial0/1/1
+ no ip address
+ encapsulation ppp
+ ppp multilink
+ ppp multilink group 1
+!
+interface Serial0/2/0
+ ip address 22.84.4.2 255.255.255.252
+ ip nat outside
+ ip virtual-reassembly in
+!
+interface Serial0/2/1
+ no ip address
+ shutdown
+ clock rate 125000
+!
+interface Virtual-Template1
+ ip address 10.8.8.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+ peer default ip address pool l2tp
+ ppp authentication pap callout
+!
+router ospf 1
+ passive-interface default
+ no passive-interface FastEthernet0/1.10
+ no passive-interface Tunnel1
+ network 10.8.8.0 0.0.0.255 area 1
+ network 172.16.1.0 0.0.0.255 area 0
+ network 172.16.3.0 0.0.0.255 area 0
+ network 192.168.2.0 0.0.0.255 area 1
+!
+router bgp 65010
+ bgp log-neighbor-changes
+ network 3.3.3.3 mask 255.255.255.255
+ network 22.84.4.0 mask 255.255.255.252
+ network 100.45.5.0 mask 255.255.255.252
+ neighbor 22.84.4.1 remote-as 65002
+ neighbor 22.84.4.1 prefix-list PRL-ISP-in in
+ neighbor 100.45.5.1 remote-as 65001
+ neighbor 100.45.5.1 prefix-list PRL-ISP-in in
+!
+ip local pool l2tp 10.8.8.10
+ip forward-protocol nd
+no ip http server
+no ip http secure-server
+!
+!
+ip nat inside source list 1 interface Loopback0 overload
+!
+!
+ip prefix-list PRL-ISP-in seq 5 deny 14.88.22.8/32
+ip prefix-list PRL-ISP-in seq 10 permit 0.0.0.0/0 le 32
+access-list 1 permit 10.8.8.0 0.0.0.255
+ipv6 router eigrp 6000
+!
+!
+!
+!
+!
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+mgcp profile default
+!
+!
+!
+!
+!
+gatekeeper
+ shutdown
+!
+!
+privilege exec level 5 reload
+privilege exec level 5 no debug
+privilege exec level 5 debug
+privilege exec level 5 no
+!
+line con 0
+line aux 0
+line vty 0 4
+ password 7 05080F1C2243
+ transport input all
+line vty 5 15
+ transport input all
+!
+scheduler allocate 20000 1000
+ntp server 172.16.20.20
+end

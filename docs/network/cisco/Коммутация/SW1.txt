@@ -1,0 +1,23 @@
+vlan 1000
+  name MGT
+  exit
+vlan 1200
+  name DATA
+  exit
+vlan 1300
+  name OFFICE
+  exit
+vlan 1500
+  name NATIVE
+  exit
+vlan 1600
+  name SHUTDOWN
+  exit
+vtp mode off
+
+interface range fa0/3-4
+  channel-group 2 mode desirable
+  exit
+interface range fa0/5-6
+  channel-group 1 mode active
+  exit

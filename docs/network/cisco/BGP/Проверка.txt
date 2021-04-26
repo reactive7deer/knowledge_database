@@ -1,0 +1,182 @@
+HQ1#show ip bgp
+BGP table version is 122, local router ID is 1.1.1.1
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
+              r RIB-failure, S Stale, m multipath, b backup-path, x best-external, f RT-Filter
+Origin codes: i - IGP, e - EGP, ? - incomplete
+
+   Network          Next Hop            Metric LocPrf Weight Path
+*>i0.0.0.0          22.84.4.5                0    100      0 65002 i
+*> 1.1.1.1/32       0.0.0.0                  0         32768 i
+*>i3.3.3.3/32       22.84.4.5                0    100      0 65002 65010 i
+*>i8.8.8.8/32       100.45.10.1              0    100      0 65001 i
+*>i14.88.22.8/32    100.45.10.1              0    100      0 65001 i
+*>i22.84.4.0/30     22.84.4.5                0    100      0 65002 i
+*>i22.84.4.4/30     30.78.87.2               0    100      0 i
+*> 30.78.21.0/24    0.0.0.0                  0         32768 i
+* i30.78.87.0/29    30.78.87.2               0    100      0 i
+*>                  0.0.0.0                  0         32768 i
+*>i77.88.8.8/32     22.84.4.5                0    100      0 65002 i
+*>i100.22.5.0/30    22.84.4.5                0    100      0 65002 i
+*>i100.45.5.0/30    100.45.10.1              0    100      0 65001 i
+*>i100.45.10.0/30   30.78.87.2               0    100      0 i
+
+
+HQ1#show ip bgp sum
+BGP router identifier 1.1.1.1, local AS number 65000
+BGP table version is 122, main routing table version 122
+13 network entries using 1768 bytes of memory
+14 path entries using 784 bytes of memory
+5/5 BGP path/bestpath attribute entries using 640 bytes of memory
+3 BGP AS-PATH entries using 72 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 3264 total bytes of memory
+BGP activity 33/20 prefixes, 50/36 paths, scan interval 60 secs
+
+Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+30.78.87.2      4        65000     491     529      122    0    0 07:57:03       11
+
+
+HQ1#ping 3.3.3.3
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 3.3.3.3, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 24/24/24 ms
+HQ1#
+
+
+
+
+
+
+
+FW1# show bgp
+
+BGP table version is 123, local router ID is 192.168.254.2
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
+              r RIB-failure, S Stale, m multipath
+Origin codes: i - IGP, e - EGP, ? - incomplete
+
+   Network          Next Hop        Metric LocPrf Weight  Path
+*  0.0.0.0          100.45.10.1                        0  65001 i
+*>                  22.84.4.5                          0  65002 i
+*>i1.1.1.1/32       30.78.87.1           0    100      0  i
+*  3.3.3.3/32       100.45.10.1                        0  65001 65010 i
+*>                  22.84.4.5                          0  65002 65010 i
+*  8.8.8.8/32       22.84.4.5                          0  65002 i
+*>                  100.45.10.1          0             0  65001 i
+*  14.88.22.8/32    22.84.4.5                          0  65002 i
+*>                  100.45.10.1          0             0  65001 i
+*  22.84.4.0/30     100.45.10.1                        0  65001 i
+*>                  22.84.4.5            0             0  65002 i
+*  22.84.4.4/30     100.45.10.1                        0  65001 i
+*                   22.84.4.5            0             0  65002 i
+*>                  0.0.0.0              0         32768  i
+*>i30.78.21.0/24    30.78.87.1           0    100      0  i
+* i30.78.87.0/29    30.78.87.1           0    100      0  i
+*>                  0.0.0.0              0         32768  i
+*  77.88.8.8/32     100.45.10.1                        0  65001 i
+*>                  22.84.4.5            0             0  65002 i
+*  100.22.5.0/30    100.45.10.1          0             0  65001 i
+*>                  22.84.4.5            0             0  65002 i
+*  100.45.5.0/30    22.84.4.5                          0  65002 i
+*>                  100.45.10.1          0             0  65001 i
+*  100.45.10.0/30   22.84.4.5                          0  65002 i
+*                   100.45.10.1          0             0  65001 i
+*>                  0.0.0.0              0         32768  i
+
+
+FW1# show bgp sum
+BGP router identifier 192.168.254.2, local AS number 65000
+BGP table version is 123, main routing table version 123
+13 network entries using 1560 bytes of memory
+26 path entries using 1352 bytes of memory
+8/6 BGP path/bestpath attribute entries using 992 bytes of memory
+4 BGP AS-PATH entries using 96 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 4000 total bytes of memory
+BGP activity 30/17 prefixes, 103/77 paths, scan interval 60 secs
+
+Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+100.45.10.1     4        65001 85      69           123    0    0 01:07:48  10  
+30.78.87.1      4        65000 530     492          123    0    0 07:58:37  3   
+22.84.4.5       4        65002 82      70           123    0    0 01:07:48  10  
+
+
+
+
+
+
+
+
+
+
+
+BR1#show ip bgp
+BGP table version is 82, local router ID is 3.3.3.3
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
+              r RIB-failure, S Stale, m multipath, b backup-path, x best-external, f RT-Filter
+Origin codes: i - IGP, e - EGP, ? - incomplete
+
+   Network          Next Hop            Metric LocPrf Weight Path
+*  0.0.0.0          22.84.4.1                              0 65002 i
+*>                  100.45.5.1                             0 65001 i
+*  1.1.1.1/32       22.84.4.1                              0 65002 65000 i
+*>                  100.45.5.1                             0 65001 65000 i
+*> 3.3.3.3/32       0.0.0.0                  0         32768 i
+*  8.8.8.8/32       22.84.4.1                              0 65002 i
+*>                  100.45.5.1               0             0 65001 i
+*  22.84.4.0/30     100.45.5.1                             0 65001 i
+*                   22.84.4.1                0             0 65002 i
+*>                  0.0.0.0                  0         32768 i
+*> 22.84.4.4/30     22.84.4.1                0             0 65002 i
+*                   100.45.5.1                             0 65001 i
+*  30.78.21.0/24    22.84.4.1                              0 65002 65000 i
+*>                  100.45.5.1                             0 65001 65000 i
+*  30.78.87.0/29    22.84.4.1                              0 65002 65000 i
+   Network          Next Hop            Metric LocPrf Weight Path
+*>                  100.45.5.1                             0 65001 65000 i
+*  77.88.8.8/32     100.45.5.1                             0 65001 i
+*>                  22.84.4.1                0             0 65002 i
+*  100.22.5.0/30    22.84.4.1                0             0 65002 i
+*>                  100.45.5.1               0             0 65001 i
+*  100.45.5.0/30    22.84.4.1                              0 65002 i
+*>                  100.45.5.1               0             0 65001 i
+*  100.45.10.0/30   22.84.4.1                              0 65002 i
+*>                  100.45.5.1               0             0 65001 i
+
+
+BR1#show ip bgp sum
+BGP router identifier 3.3.3.3, local AS number 65010
+BGP table version is 82, main routing table version 82
+12 network entries using 1632 bytes of memory
+24 path entries using 1344 bytes of memory
+7/5 BGP path/bestpath attribute entries using 896 bytes of memory
+4 BGP AS-PATH entries using 96 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 3968 total bytes of memory
+BGP activity 45/33 prefixes, 127/103 paths, scan interval 60 secs
+
+Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+22.84.4.1       4        65002      84      84       82    0    0 01:09:56       11
+100.45.5.1      4        65001      86      84       82    0    0 01:09:56       11
+
+
+BR1#sh ip prefix-list detail
+Prefix-list with the last deletion/insertion: PRL-ISP-in
+ip prefix-list PRL-ISP-in:
+   count: 2, range entries: 1, sequences: 5 - 10, refcount: 4
+   seq 5 deny 14.88.22.8/32 (hit count: 12, refcount: 1)
+   seq 10 permit 0.0.0.0/0 le 32 (hit count: 169, refcount: 1)
+
+
+BR1#ping 1.1.1.1
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 1.1.1.1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 16/19/20 ms
+BR1#
+
+
